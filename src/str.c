@@ -15,7 +15,7 @@ struct libs_string
 {
         size_t len;		/* Length		*/
         enum libs_str_type enc;	/* Encoding		*/
-        void* str;		/* Actual string 	*/
+        void *str;		/* Actual string 	*/
 };
 
 char **libs_string(const char* str)
@@ -43,7 +43,7 @@ wchar_t **libs_wstring(const wchar_t* wstr)
 
 	if (offset == 0)
 		offset = (int) &new_str->str - (int) new_str;
-	return (wchar_t**) &new_str->str;
+	return (wchar_t **) &new_str->str;
 }
 
 /* Internal utility */
@@ -54,9 +54,17 @@ struct libs_string *libs_string_get(void *str)
 	return (struct libs_string *) str;
 }
 
+const struct libs_string *libs_string_cget(const void *str)
+{
+	assert(offset > 0);
+	str -= offset;
+	return (const struct libs_string *) str;
+}
+/* ==== */
+
 void libs_string_destroy(void *str)
 {
-	struct libs_string* s = libs_string_get(str);
+	struct libs_string *s = libs_string_get(str);
 	free(s->str);
 	free(s);
 }
@@ -109,7 +117,7 @@ bool libs_string_utf8_to_wcs(void *str)
 	if (s->enc == libs_utf16) return true;
 
 	size_t str_len = strlen(str) + 1;
-	wchar_t* wstr = NULL;
+	wchar_t *wstr = NULL;
 
 #ifdef _WIN32
 	size_t space_req = MultiByteToWideChar(CP_UTF8, 0, str, str_len,
@@ -145,5 +153,150 @@ bool libs_string_utf8_to_wcs(void *str)
 void libs_string_refresh(void *str)
 {
 	struct libs_string *s = libs_string_get(str);
-	s->len = strlen(str);
+	s->len = strlen(s->str);
+}
+
+int libs_string_replace_char(void *str, char find, char replace)
+{
+	int found = 0;
+	struct libs_string *s = libs_string_get(str);
+	char *ptr = s->str;
+
+	if (!s || s->enc != libs_utf8 || !(*ptr))
+		return 0;
+
+	do {
+		if (*ptr == find) {
+			*ptr = replace;
+			found++;
+		}
+	} while (*ptr++);
+	return found;
+}
+
+int libs_wstring_replace_char(void *str, wchar_t find, wchar_t replace)
+{
+	int found = 0;
+	struct libs_string *s = libs_string_get(str);
+	wchar_t *ptr = s->str;
+
+	if (!s || s->enc != libs_utf16 || !(*ptr))
+		return 0;
+
+	do {
+		if (*ptr == find) {
+			*ptr = replace;
+			found++;
+		}
+	} while (*ptr++);
+	return found;
+}
+
+int libs_string_replace_cstr(void *str, const char *find, const char *replace)
+{
+	int found = 0;
+	struct libs_string *s = libs_string_get(str);
+	char *ptr = s->str;
+
+	if (!s || s->enc != libs_utf8 || !(*ptr) || !find || !replace)
+		return 0;
+	size_t repl_len = strlen(replace);
+	size_t find_len = strlen(find);
+
+	while ((ptr = strstr(ptr, find))) {
+		size_t ptr_len = strlen(ptr) + 1; /* Null terminator + 1 */
+		if (find_len > repl_len) { /* Move rest to fill space */
+			memmove(ptr + repl_len, ptr + find_len, ptr_len -
+				repl_len);
+		} else if (find_len < repl_len) { /* Move rest to make space */
+
+			memmove(ptr + repl_len, ptr + find_len, ptr_len -
+				find_len);
+		}
+		/* Replace with new string */
+		memcpy(ptr, replace, repl_len);
+		found++;
+	}
+	/* Update string length */
+	libs_string_refresh(str);
+	return found;
+}
+
+int libs_wstring_replace_cstr(void *str, const wchar_t *find, const wchar_t
+			      *replace)
+{
+	int found = 0;
+	struct libs_string *s = libs_string_get(str);
+	wchar_t *ptr = s->str;
+
+	if (!s || s->enc != libs_utf16 || !(*ptr) || !find || !replace)
+		return 0;
+	size_t repl_len = wcslen(replace);
+	size_t find_len = wcslen(find);
+
+	while ((ptr = wcsstr(ptr, find))) {
+		size_t ptr_len = wcslen(ptr) + 1; /* Null terminator + 1 */
+		if (find_len > repl_len) { /* Move rest to fill space */
+			memmove(ptr + repl_len, ptr + find_len, ptr_len -
+				repl_len);
+		} else if (find_len < repl_len) { /* Move rest to make space */
+
+			memmove(ptr + repl_len, ptr + find_len, ptr_len -
+				find_len);
+		}
+		/* Replace with new string */
+		memcpy(ptr, replace, repl_len);
+		found++;
+	}
+	/* Update string length */
+	libs_string_refresh(str);
+	return found;
+}
+
+int libs_string_count_char(const void *str, char which)
+{
+	int found = 0;
+	const struct libs_string *s = libs_string_cget(str);
+
+	if (!s || s->enc != libs_utf8 || s->len < 1)
+		return 0;
+	char *ptr = s->str;
+	do {
+		if (*ptr == which)
+			found++;
+	} while (++ptr && strlen(ptr) > 0);
+	return found;
+}
+
+int libs_wstring_count_char(const void *str, wchar_t which)
+{
+	int found = 0;
+	const struct libs_string *s = libs_string_cget(str);
+
+	if (!s || s->enc != libs_utf16 || s->len < 1)
+		return 0;
+	wchar_t *ptr = s->str;
+	do {
+		if (*ptr == which)
+			found++;
+	} while (++ptr && wcslen(ptr) > 0);
+	return found;
+}
+
+int libs_string_count_cstr(const void *str, const char *which)
+{
+	int found = 0;
+	const struct libs_string *s = libs_string_cget(str);
+
+	if (!s || s->enc != libs_utf8 || s->len < 1)
+		return 0;
+	char *ptr = s->str;
+	size_t which_len = strlen(which);
+	size_t index = 0;
+	while (index < s->len && (ptr = strstr(ptr, which))) {
+		found++;
+		ptr += which_len;
+		index += which_len;
+	}
+	return found;
 }
