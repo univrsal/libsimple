@@ -153,7 +153,12 @@ bool libs_string_utf8_to_wcs(void *str)
 void libs_string_refresh(void *str)
 {
 	struct libs_string *s = libs_string_get(str);
-	s->len = strlen(s->str);
+	if (!s) return;
+
+	if (s->enc == libs_utf8)
+		s->len = strlen(s->str);
+	else if (s->enc == libs_utf16)
+		s->len = wcslen(s->str);
 }
 
 int libs_string_replace_char(void *str, char find, char replace)
@@ -202,9 +207,19 @@ int libs_string_replace_cstr(void *str, const char *find, const char *replace)
 		return 0;
 	size_t repl_len = strlen(replace);
 	size_t find_len = strlen(find);
+	size_t str_len = s->len + 1;
+	int replace_counts = libs_string_count_cstr(str, find);
+	/* new length of the string */
+	size_t new_len = s->len + 1 + ((repl_len - find_len) * replace_counts);
+
+	/* Make string array bigger, if replacement string needs more space */
+	if (find_len < repl_len)
+		s->str = realloc(s->str, new_len * sizeof(char));
 
 	while ((ptr = strstr(ptr, find))) {
-		size_t ptr_len = strlen(ptr) + 1; /* Null terminator + 1 */
+		/* Null terminator + 1 */
+		size_t ptr_len = (strlen(ptr) + 1) * sizeof(char);
+
 		if (find_len > repl_len) { /* Move rest to fill space */
 			memmove(ptr + repl_len, ptr + find_len, ptr_len -
 				repl_len);
@@ -217,6 +232,11 @@ int libs_string_replace_cstr(void *str, const char *find, const char *replace)
 		memcpy(ptr, replace, repl_len);
 		found++;
 	}
+
+	/* Make string array smaller, if replacement string needs less space */
+	if (find_len > repl_len)
+		s->str = realloc(s->str, new_len * sizeof(char));
+
 	/* Update string length */
 	libs_string_refresh(str);
 	return found;
@@ -233,20 +253,33 @@ int libs_wstring_replace_cstr(void *str, const wchar_t *find, const wchar_t
 		return 0;
 	size_t repl_len = wcslen(replace);
 	size_t find_len = wcslen(find);
+	int replace_counts = libs_wstring_count_cstr(str, find);
+	/* new length of the string */
+	size_t new_len = s->len + 1 + ((repl_len - find_len) * replace_counts);
+
+	/* Make string array bigger, if replacement string needs more space */
+	if (find_len < repl_len) {
+		s->str = realloc(s->str, new_len * sizeof(wchar_t));
+	}
 
 	while ((ptr = wcsstr(ptr, find))) {
-		size_t ptr_len = wcslen(ptr) + 1; /* Null terminator + 1 */
+		 /* Null terminator + 1 */
+		size_t ptr_len = (wcslen(ptr) + 1);
 		if (find_len > repl_len) { /* Move rest to fill space */
-			memmove(ptr + repl_len, ptr + find_len, ptr_len -
-				repl_len);
+			memmove(ptr + repl_len, ptr + find_len, (ptr_len -
+				repl_len) * sizeof(wchar_t));
 		} else if (find_len < repl_len) { /* Move rest to make space */
-
-			memmove(ptr + repl_len, ptr + find_len, ptr_len -
-				find_len);
+			memmove(ptr + repl_len, ptr + find_len, (ptr_len -
+				find_len) * sizeof(wchar_t));
 		}
 		/* Replace with new string */
-		memcpy(ptr, replace, repl_len);
+		memcpy(ptr, replace, repl_len * sizeof(wchar_t));
 		found++;
+	}
+
+	/* Make string array smaller, if replacement string needs less space */
+	if (find_len > repl_len) {
+		s->str = realloc(s->str, new_len * sizeof (wchar_t));
 	}
 	/* Update string length */
 	libs_string_refresh(str);
@@ -299,4 +332,52 @@ int libs_string_count_cstr(const void *str, const char *which)
 		index += which_len;
 	}
 	return found;
+}
+
+int libs_wstring_count_cstr(const void *str, const wchar_t *which)
+{
+	int found = 0;
+	const struct libs_string *s = libs_string_cget(str);
+
+	if (!s || s->enc != libs_utf16 || s->len < 1)
+		return 0;
+	wchar_t *ptr = s->str;
+	size_t which_len = wcslen(which);
+	size_t index = 0;
+	while (index < s->len && (ptr = wcsstr(ptr, which))) {
+		found++;
+		ptr += which_len;
+		index += which_len;
+	}
+	return found;
+}
+
+void libs_string_reverse(void *str)
+{
+	struct libs_string *s = libs_string_get(str);
+	if (!s || s->len < 2 || s->enc == libs_str_type_invalid) return;
+
+	size_t begin = 0, end = s->len -1;
+	char *ptr = NULL, tmp;
+	wchar_t *wptr = NULL, wtmp;
+
+	if (s->enc == libs_utf8) {
+		ptr = s->str;
+		while (begin != end) {
+			tmp = ptr[end];
+			ptr[end] = ptr[begin];
+			ptr[begin] = tmp;
+			begin++;
+			end--;
+		}
+	} else {
+		wptr = s->str;
+		while (begin != end) {
+			wtmp = wptr[end];
+			wptr[end] = wptr[begin];
+			wptr[begin] = wtmp;
+			begin++;
+			end--;
+		}
+	}
 }

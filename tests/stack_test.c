@@ -15,15 +15,15 @@ void stack_test(void)
 	stack = libs_stack_create(5, sizeof(int));
 	assert(stack != NULL);
 
-	bool success = 1;
+	bool fail_index = 1;
 	for (int i = 0; i < 6; i++) {
 		if (!libs_stack_push(stack, &i)) {
 			printf("Push at %i failed\n", i);
-			success = 0;
+			fail_index = i;
 			break;
 		}
 	}
-	assert(success);
+	assert(fail_index == 5);
 
 	printf("Top: %i\n", *(int*) libs_stack_top(stack));
 	libs_stack_destroy(stack);

@@ -103,4 +103,10 @@ libs_string_count_cstr(const void *str, const char *which);
 extern DECLSPEC int LIBS_CALL
 libs_wstring_count_cstr(const void *str, const wchar_t *which);
 
+/* Reverses the order of characters
+ * Unified method for utf8/utf16
+ */
+extern DECLSPEC void LIBS_CALL
+libs_string_reverse(void *str);
+
 #endif /* Header guard */
