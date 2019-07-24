@@ -16,30 +16,16 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  */
-#ifndef LIBSIMPLE_H
-#define LIBSIMPLE_H
+#include <assert.h>
+#include <libsimple.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* If you want libsimple to use typedefs
- * use #define LIB_SIMPLE_TYPEDEF 1
- */
-
-/* These headers can also be included individually
- * if only a specific module is needed.
- * If this is done, make sure to surround the include
- * statement with 'extern "C"', if C++ is used.
- */
-#include "stack.h"
-#include "str.h"
-#include "array.h"
-#include "list.h"
-#include "tree.h"
-
-#ifdef __cplusplus
+void list_test(void)
+{
+        struct libs_list *list = libs_list();
+        assert(list);
+        for (int8_t i = 0; i < 10; i++)
+                libs_list_append_int8(list, i);
+        assert(libs_list_size(list) == 10);
+        assert(* (int8_t*)libs_list_at(list, 9) == 9);
+        libs_list_destroy(list);
 }
-#endif
-
-#endif /* Header guard */

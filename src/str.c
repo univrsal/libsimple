@@ -1,3 +1,21 @@
+/* Copyright (c) 2019 github.com/univrsal <universailp@web.de>
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 #include "str.h"
 #include <string.h>
 #include <wchar.h>
@@ -9,7 +27,7 @@
 #endif
 
 /* Byte offset between struct head and string pointer */
-static int offset = 0;
+static int str_offset = 0;
 
 struct libs_string
 {
@@ -25,8 +43,8 @@ char **libs_string(const char* str)
 	new_str->enc = libs_utf8;
 	new_str->str = strdup(str);
 
-	if (offset == 0)
-		offset = (int) &new_str->str - (int) new_str;
+	if (str_offset == 0)
+		str_offset = (int) &new_str->str - (int) new_str;
 
 	/* Intentionally return pointer to string
 	 * so C String manipulation can directly use it
@@ -41,23 +59,24 @@ wchar_t **libs_wstring(const wchar_t* wstr)
 	new_str->enc = libs_utf16;
 	new_str->str = wcsdup(wstr);
 
-	if (offset == 0)
-		offset = (int) &new_str->str - (int) new_str;
+	if (str_offset == 0)
+		str_offset = (int) &new_str->str - (int) new_str;
 	return (wchar_t **) &new_str->str;
 }
 
 /* Internal utility */
 struct libs_string *libs_string_get(void *str)
 {
-	assert(offset > 0);
-	str -= offset;
+	assert(str_offset > 0);
+	assert(str);
+	str -= str_offset;
 	return (struct libs_string *) str;
 }
 
 const struct libs_string *libs_string_cget(const void *str)
 {
-	assert(offset > 0);
-	str -= offset;
+	assert(str_offset > 0);
+	str -= str_offset;
 	return (const struct libs_string *) str;
 }
 /* ==== */
@@ -207,7 +226,6 @@ int libs_string_replace_cstr(void *str, const char *find, const char *replace)
 		return 0;
 	size_t repl_len = strlen(replace);
 	size_t find_len = strlen(find);
-	size_t str_len = s->len + 1;
 	int replace_counts = libs_string_count_cstr(str, find);
 	/* new length of the string */
 	size_t new_len = s->len + 1 + ((repl_len - find_len) * replace_counts);

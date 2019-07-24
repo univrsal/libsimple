@@ -16,30 +16,26 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  */
-#ifndef LIBSIMPLE_H
-#define LIBSIMPLE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <libsimple.h>
+#include <assert.h>
 
-/* If you want libsimple to use typedefs
- * use #define LIB_SIMPLE_TYPEDEF 1
- */
+void array_test(void)
+{
+	int *arr = libs_array(sizeof(int), 10);
+	assert(arr);
+	assert(libs_array_count(arr) == 10);
+	assert(libs_array_item_size(arr) == sizeof(int));
 
-/* These headers can also be included individually
- * if only a specific module is needed.
- * If this is done, make sure to surround the include
- * statement with 'extern "C"', if C++ is used.
- */
-#include "stack.h"
-#include "str.h"
-#include "array.h"
-#include "list.h"
-#include "tree.h"
+	size_t i;
+	int val;
+	libs_array_for(arr, i) {
+		arr[i] = i;
+	}
 
-#ifdef __cplusplus
+	libs_array_foreach(arr, i, val) {
+		assert(val == i);
+	}
+
+	libs_array_destroy(arr);
 }
-#endif
-
-#endif /* Header guard */
