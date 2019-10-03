@@ -16,15 +16,27 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  */
+
+#include "test.h"
 #include <assert.h>
 #include <libsimple.h>
 
 void list_test(void)
 {
+        BEGIN_TEST("list");
         struct libs_list *list = libs_list();
         assert(list);
         for (int8_t i = 0; i < 10; i++)
                 libs_list_append_int8(list, i);
+
+        size_t index;
+        struct libs_list_node *node;
+        int8_t* data;
+        libs_list_foreach(list, index, node) {
+            data = libs_list_node_data(node, NULL);
+            assert(*data == index);
+        };
+
         assert(libs_list_size(list) == 10);
         assert(* (int8_t*)libs_list_at(list, 9) == 9);
         libs_list_destroy(list);

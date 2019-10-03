@@ -17,25 +17,50 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
+#include "test.h"
 #include <libsimple.h>
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+int compare_int(const void *a, const void *b)
+{
+    int ia = *(int*)a;
+    int ib = *(int*)b;
+    return ia - ib;
+}
 
 void array_test(void)
 {
-	int *arr = libs_array(sizeof(int), 10);
-	assert(arr);
-	assert(libs_array_count(arr) == 10);
-	assert(libs_array_item_size(arr) == sizeof(int));
+    BEGIN_TEST("Array");
+    int *arr = libs_array(sizeof(int), 10);
+    assert(arr);
+    assert(libs_array_count(arr) == 10);
+    assert(libs_array_item_size(arr) == sizeof(int));
 
-	size_t i;
-	int val;
-	libs_array_for(arr, i) {
-		arr[i] = i;
-	}
+    size_t i;
+    int val;
+    libs_array_for(arr, i) {
+        arr[i] = i;
+    }
 
-	libs_array_foreach(arr, i, val) {
-		assert(val == i);
-	}
+    libs_array_foreach(arr, i, val) {
+        assert(val == i);
+    }
 
-	libs_array_destroy(arr);
+    /* Reverse order for sorting test */
+    libs_array_for(arr, i) {
+        arr[i] = 9 - i;
+        printf("arr[%i]: %i\n", i, 9 - i);
+    }
+    libs_array_sort(arr, &compare_int);
+    printf("====== Sort result\n");
+
+    /* Check if order was restored */
+    libs_array_foreach(arr, i, val) {
+        assert(val == i);
+        printf("arr[%i]: %i\n", i, val);
+    }
+
+    //libs_array_destroy(arr);
 }

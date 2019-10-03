@@ -36,7 +36,7 @@ enum libs_str_type
         libs_utf16,
 };
 
-#if LIB_SIMPLEE_TYPEDEF
+#ifdef LIB_SIMPLE_TYPEDEF
 typedef struct libs_string libs_string_t;
 #endif
 
@@ -127,4 +127,12 @@ libs_wstring_count_cstr(const void *str, const wchar_t *which);
 extern DECLSPEC void LIBS_CALL
 libs_string_reverse(void *str);
 
+/* Cut the string to begin with provided length
+ * @str		simple string
+ * @begin	start for cutting
+ * @length	length of cut segment
+ * @return	true if successful
+ */
+extern DECLSPEC bool LIBS_CALL
+libs_string_cut(void *str, size_t begin, size_t length);
 #endif /* Header guard */

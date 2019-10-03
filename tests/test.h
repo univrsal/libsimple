@@ -16,3 +16,9 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  */
+
+#ifndef TEST_H
+#define TEST_H
+#include <assert.h>
+#define BEGIN_TEST(id)	printf("======== %10s Test ========\n", id)
+#endif

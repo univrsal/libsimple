@@ -21,12 +21,14 @@ extern void stack_test(void);
 extern void str_test(void);
 extern void list_test(void);
 extern void array_test(void);
+extern void vec_test(void);
 
 int main()
 {
-	stack_test();
-	str_test();
-	list_test();
-	array_test();
-	return 0;
+    stack_test();
+    str_test();
+    list_test();
+    array_test();
+    vec_test();
+    return 0;
 }

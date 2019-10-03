@@ -23,8 +23,8 @@
 
 struct libs_array;
 
-#if LIB_SIMPLE_TYPEDEF
-typedef struct libs_array libs_array_t
+#ifdef LIB_SIMPLE_TYPEDEF
+typedef struct libs_array libs_array_t;
 #endif
 
 /* Create an array of provided size
@@ -69,14 +69,17 @@ libs_array_resize(void *array, size_t count);
 #define libs_array_foreach(arr, index, item) for (index = 0; index < \
         libs_array_count(arr) && ((item = arr[index]) || 1); ++index)
 
-/* A pointer to a function wich returns true
- * if a is greater than b
+/* A pointer to a function wich returns
+ * the difference in value between a and b:
+ * return a - b
+ * this is used when sorting an array
  */
-typedef bool (libs_array_compare_t)(void *a, void *b);
+typedef int (libs_array_compare_t)(const void *a, const void *b);
 
 /* Sorts the provided array
  * with quicksort and a provided
- * comparsion method
+ * comparsion method. This uses the stdlib implementation
+ * of quicksort
  */
 extern DECLSPEC void LIBS_CALL
 libs_array_sort(void *array, libs_array_compare_t* comp);

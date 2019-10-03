@@ -22,7 +22,7 @@
 
 struct libs_stack;
 
-#if LIB_SIMPLE_TYPEDEF
+#ifdef LIB_SIMPLE_TYPEDEF
 typedef struct libs_stack libs_stack_t;
 #endif
 

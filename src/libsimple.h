@@ -36,7 +36,7 @@ extern "C" {
 #include "str.h"
 #include "array.h"
 #include "list.h"
-#include "tree.h"
+#include "vec.h"
 
 #ifdef __cplusplus
 }

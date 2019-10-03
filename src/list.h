@@ -22,8 +22,11 @@
 
 struct libs_list;
 
-#if LIB_SIMPLE_TYPEDEF
+struct libs_list_node;
+
+#ifdef LIB_SIMPLE_TYPEDEF
 typedef struct libs_list libs_list_t;
+typedef struct libs_list_node list_list_node_t;
 #endif
 
 /* Creates an empty list */
@@ -127,6 +130,11 @@ libs_list_size(struct libs_list *list);
 extern DECLSPEC void *LIBS_CALL
 libs_list_first(struct libs_list *list);
 
+/* Returns first the node, which contains next, previous
+ * and data pointer. NULL if list is empty */
+extern DECLSPEC struct libs_list_node *LIBS_CALL
+libs_list_first_node(struct libs_list *list);
+
 /* Returns the last item in the list
  * aka the item which would be in
  * index n - 1 in an array of length n
@@ -134,4 +142,24 @@ libs_list_first(struct libs_list *list);
 extern DECLSPEC void *LIBS_CALL
 libs_list_last(struct libs_list *list);
 
+/* Returns last the node, which contains next, previous
+ * and data pointer. NULL if list is empty */
+extern DECLSPEC struct libs_list_node *LIBS_CALL
+libs_list_last_node(struct libs_list *list);
+
+/* Access methods for list node */
+extern DECLSPEC struct libs_list_node *LIBS_CALL
+libs_list_node_next(struct libs_list_node *node);
+
+extern DECLSPEC struct libs_list_node *LIBS_CALL
+libs_list_node_prev(struct libs_list_node *node);
+
+/* If size is not NULL size of the data held by the node
+ * will be stored in there */
+extern DECLSPEC void *LIBS_CALL
+libs_list_node_data(struct libs_list_node *node, size_t* size);
+
+#define libs_list_foreach(list, index, node) for (index = 0,\
+    node = libs_list_first_node(list);\
+    node; ++index, node = libs_list_node_next(node))
 #endif /* Header guard */
