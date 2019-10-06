@@ -22,4 +22,5 @@ target_include_directories("simple" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/")
 # Tests
 add_executable("simple_tests" ${TESTS_SOURCE_FILES})
 add_dependencies("simple_tests" "simple")
+target_include_directories("simple_tests" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/tests/")
 target_link_libraries("simple_tests" "simple")
