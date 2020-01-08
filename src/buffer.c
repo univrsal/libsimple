@@ -46,3 +46,31 @@ size_t libs_buffer_size(const struct libs_buffer *buf)
         return buf->size;
     return 0;
 }
+
+
+bool libs_buffer_read(const libs_buffer *buf, void *data,
+                      size_t size)
+{
+    if (!buf || !data)
+        return false;
+    if (buf->read_pos + size > buf->size)
+        return false;
+    memcpy(buf->data + buf->read_pos, data, size);
+    buf->read_pos += size;
+    return true; 
+}
+
+bool libs_buffer_write(struct libs_buffer *buf, const void *data,
+                       size_t size)
+{
+    if (!buf || !data)
+        return false;
+    if (buf->write_pos + size > buf->size)
+        return false;
+    
+    memcpy(buf->data + buf->write_pos, data, size);
+    buf->write_pos += size;
+    return true;
+}
+
+

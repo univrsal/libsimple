@@ -22,5 +22,6 @@
 
 void buffer_test(void)
 {
-
+    struct libs_buffer *buf = libs_buffer(32);
+    assert(libs_buffer_size(buf) == 32);
 }
