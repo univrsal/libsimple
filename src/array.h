@@ -21,66 +21,99 @@
 #define LIB_SIMPLE_ARRAY_H
 #include "types.h"
 
+/**
+ * \struct libs_array array.h
+ * \brief A dynamic array that can be used
+ * \defgroup libs_array
+ * just like a normal C array
+ */
 struct libs_array;
 
 #ifdef LIB_SIMPLE_TYPEDEF
 typedef struct libs_array libs_array_t;
 #endif
 
-/* Create an array of provided size
- * returns the direct pointer to the array
- * memory is zeroed
- * @item_size	size of an individual item
- * @count	item count of array
- * @return 	direct pointer to array
- */
+/**
+  * \brief Create an array of provided size
+  * returns the direct pointer to the array
+  * memory is zeroed
+  * \ingroup simple_array
+  * \param item_size	size of an individual item
+  * \param count		item count of array
+  * \return 			direct pointer to the new array
+  */
 extern DECLSPEC void* LIBS_CALL
 libs_array(size_t item_size, size_t count);
 
-/* Deletes array */
+/** \brief deletes the array
+  * \ingroup simple_array
+  * \param array the simple array
+  */
 extern DECLSPEC void LIBS_CALL
 libs_array_destroy(void *array);
 
-/* Gets the size of an array
- * only use the pointer returned
- * by libs_array()
- */
+/** \brief Gets the item count of the array
+  * \ingroup simple_array
+  * \param array 	the simple array
+  * \return 		the item count of the array
+  */
 extern DECLSPEC size_t LIBS_CALL
 libs_array_count(void *array);
 
-/* Gets the size of an individual
- * item of the array. only use the
- * pointer returned by
- * libs_array()
- */
+/** \brief Gets the item size of the array
+  * \ingroup simple_array
+  * \param array	the simple array
+  * \return 		the itemsize of the array
+  */
 extern DECLSPEC size_t LIBS_CALL
 libs_array_item_size(void *array);
 
-/* Resizes the array to the provided
- * lenght.
- * If size was increased new memory
- * is zeroed
- */
+/** \brief Resizes the array to the provided size
+  * \ingroup simple_array
+  * \param array the simple array
+  * \param count the array length
+  * \return true if allocation succeeded
+  * If size was increased new memory
+  * is zeroed.
+  */
 extern DECLSPEC bool LIBS_CALL
 libs_array_resize(void *array, size_t count);
 
+/** \brief Macro for loop for simple array
+  * \ingroup simple_array
+  * \param arr		the simple array
+  * \param index	index variable
+  */
 #define libs_array_for(arr, index) for (index = 0; index < \
         libs_array_count(arr); ++index)
+/** \brief Macro for each loop for simple array
+  * \ingroup simple_array
+  * \param arr		the simple array
+  * \param index	index variable
+  * \param item		the current array item
+  */
 #define libs_array_foreach(arr, index, item) for (index = 0; index < \
         libs_array_count(arr) && ((item = arr[index]) || 1); ++index)
 
-/* A pointer to a function wich returns
- * the difference in value between a and b:
- * return a - b
- * this is used when sorting an array
- */
+/** \brief A pointer to a function wich returns
+  * \ref array_compare
+  * the difference in value between a and b:
+  * return a - b
+  * this is used when sorting an array
+  * \ingroup simple_array
+  * \param a	An entry a from the array to be sorted
+  * \param b	An entry b from the array to be sorted
+  * \return		the difference between the two
+  */
 typedef int (libs_array_compare_t)(const void *a, const void *b);
 
-/* Sorts the provided array
- * with quicksort and a provided
- * comparsion method. This uses the stdlib implementation
- * of quicksort
- */
+/** \brief Sorts the provided array
+  * with quicksort and a provided
+  * comparsion method. This uses the stdlib implementation
+  * of quicksort
+  * \param array	the simple array
+  * \param comp		the comparision method \see array_compare
+  */
 extern DECLSPEC void LIBS_CALL
 libs_array_sort(void *array, libs_array_compare_t* comp);
 #endif /* Header guard */

@@ -18,13 +18,10 @@
  */
 #include "test.h"
 #include <libsimple.h>
-#include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 void stack_test(void)
 {
-    BEGIN_TEST("stack");
+    BEGIN_TEST("Stack");
     struct libs_stack *stack = NULL;
     /* Test default stack */
     stack = libs_stack();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2019 github.com/univrsal <universailp@web.de>
+/* Copyright (c) 2020 github.com/univrsal <universailp@web.de>
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -17,26 +17,32 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "test.h"
-#include <libsimple.h>
+#include "buffer.h"
+#include <stdlib.h>
+#include <assert.h>
+#include <memory.h>
 
-void list_test(void)
+struct libs_buffer {
+    size_t size;
+    size_t write_pos;
+    size_t read_pos;
+    void *data;
+};
+
+struct libs_buffer *libs_buffer(size_t size)
 {
-    BEGIN_TEST("List");
-    struct libs_list *list = libs_list();
-    assert(list);
-    for (int8_t i = 0; i < 10; i++)
-        libs_list_append_int8(list, i);
+    struct libs_buffer *buf = malloc(sizeof(struct libs_buffer));
+    buf->size = size;
+    buf->data = malloc(size);
+    buf->write_pos = 0;
+    buf->read_pos = 0;
+    memset(buf->data, 0, size);
+    return buf;
+}
 
-    size_t index;
-    struct libs_list_node *node;
-    int8_t* data;
-    libs_list_foreach(list, index, node) {
-        data = libs_list_node_data(node, NULL);
-        assert(*data == index);
-    }
-
-    assert(libs_list_size(list) == 10);
-    assert(* (int8_t*)libs_list_at(list, 9) == 9);
-    libs_list_destroy(list);
+size_t libs_buffer_size(const struct libs_buffer *buf)
+{
+    if (buf)
+        return buf->size;
+    return 0;
 }

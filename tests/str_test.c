@@ -20,9 +20,11 @@
 #include <assert.h>
 #include <string.h>
 #include <wchar.h>
+#include "test.h"
 
 void str_test(void)
 {
+    BEGIN_TEST("String");
     /* Value Creation */
     char **str = libs_string("this is a test string. this");
     assert(str);
@@ -43,6 +45,7 @@ void str_test(void)
     assert(replace1 && replace2 && replace3 && count1 == 4 && count2 == 2);
 
     libs_string_destroy(str);
+    /* UTF8 */
 
     /* Value Creation */
     wchar_t **wstr = libs_wstring(L"안녕. 你好. ÜöäßABC");

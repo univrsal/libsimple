@@ -19,9 +19,6 @@
 
 #include "test.h"
 #include <libsimple.h>
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 int compare_int(const void *a, const void *b)
 {
@@ -62,5 +59,5 @@ void array_test(void)
         printf("arr[%i]: %i\n", i, val);
     }
 
-    //libs_array_destroy(arr);
+    libs_array_destroy(arr);
 }
